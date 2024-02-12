@@ -26,6 +26,7 @@
 #include <sstream>
 #include <string>
 #include <strings.h>
+#include <cstdint>
 
 #define RISCV_LUI   0x37
 #define RISCV_AUIPC 0x17

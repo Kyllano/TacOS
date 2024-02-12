@@ -85,11 +85,16 @@ Semaphore::~Semaphore() {
 //	when it is called.
 */
 //----------------------------------------------------------------------
+#ifndef ETUDIANTS_TP
 void
 Semaphore::P() {
   printf("**** Warning: method Semaphore::P is not implemented yet\n");
   exit(ERROR);
 }
+#endif
+#ifdef ETUDIANTS_TP
+
+#endif
 
 //----------------------------------------------------------------------
 // Semaphore::V
