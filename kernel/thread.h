@@ -34,6 +34,7 @@ class Thread;
 #include "kernel/copyright.h"
 #include "kernel/process.h"
 #include "kernel/system.h"
+//#include "kernel/addrspace.h"
 #include "machine/machine.h"
 #include "utility/stats.h"
 #include "utility/utility.h"

@@ -93,7 +93,16 @@ Semaphore::P() {
 }
 #endif
 #ifdef ETUDIANTS_TP
-
+void Semaphore::P() {
+  counter --;
+  if (counter < 0){
+    IntStatus old_status = g_machine->interrupt->GetStatus(); 
+    g_machine->interrupt->SetStatus(INTERRUPTS_OFF);
+    this->waiting_queue->Append(g_current_thread);
+    g_current_thread->Sleep();
+    g_machine->interrupt->SetStatus(old_status);
+  }
+}
 #endif
 
 //----------------------------------------------------------------------
@@ -104,11 +113,23 @@ Semaphore::P() {
 //	are disabled when it is called.
 */
 //----------------------------------------------------------------------
+#ifndef ETUDIANTS_TP
 void
 Semaphore::V() {
   printf("**** Warning: method Semaphore::V is not implemented yet\n");
   exit(ERROR);
 }
+#endif
+#ifdef ETUDIANTS_TP
+void Semaphore::V() {
+  if (counter < 0){
+    Thread* thread = (Thread*) waiting_queue->getFirst()->item;
+    waiting_queue->Remove();
+    g_scheduler->ReadyToRun(thread);
+  }
+  counter ++;
+}
+#endif
 
 //----------------------------------------------------------------------
 // Lock::Lock
@@ -150,12 +171,26 @@ Lock::~Lock() {
 //	when it is called.
 */
 //----------------------------------------------------------------------
-void
-Lock::Acquire() {
+#ifndef ETUDIANTS_TP
+void Lock::Acquire() {
   printf("**** Warning: method Lock::Acquire is not implemented yet\n");
   exit(ERROR);
 }
+#endif
+#ifdef ETUDIANTS_TP
+void Lock::Acquire() {
+  IntStatus old_status = g_machine->interrupt->GetStatus(); 
+  g_machine->interrupt->SetStatus(INTERRUPTS_OFF);
 
+  while (!this->free) {
+    waiting_queue->Append(g_current_thread);
+    g_current_thread->Sleep();
+  }
+  owner = g_current_thread;
+  free=false;
+  g_machine->interrupt->SetStatus(old_status);
+} 
+#endif
 //----------------------------------------------------------------------
 // Lock::Release
 /*! 	Wake up a waiter if necessary, or release it if no thread is waiting.
@@ -165,12 +200,29 @@ Lock::Acquire() {
 //	are disabled when it is called.
 */
 //----------------------------------------------------------------------
-void
-Lock::Release() {
+#ifndef ETUDIANTS_TP
+void Lock::Release() {
   printf("**** Warning: method Lock::Release is not implemented yet\n");
   exit(ERROR);
 }
+#endif
+#ifdef ETUDIANTS_TP
+void Lock::Release()
+{
+  ASSERT(isHeldByCurrentThread());
+  if (waiting_queue->IsEmpty())
+  {
+    free = true;
+    owner = NULL;
+    return;
+  }
 
+  Thread *thread = (Thread *)waiting_queue->getFirst()->item;
+  waiting_queue->Remove();
+  g_scheduler->ReadyToRun(thread);
+  this->owner = thread;
+}
+#endif
 //----------------------------------------------------------------------
 // Lock::isHeldByCurrentThread
 /*! To check if current thread hold the lock
@@ -214,11 +266,27 @@ Condition::~Condition() {
 //  This operation must be atomic, so we need to disable interrupts.
 */
 //----------------------------------------------------------------------
-void
-Condition::Wait() {
+#ifndef ETUDIANTS_TP
+void Condition::Wait()
+{
   printf("**** Warning: method Condition::Wait is not implemented yet\n");
   exit(ERROR);
 }
+#endif
+
+#ifdef ETUDIANTS_TP
+void Condition::Wait()
+{
+  IntStatus real_Status = g_machine->interrupt->GetStatus();
+  g_machine->interrupt->SetStatus(INTERRUPTS_OFF);
+
+  this->waiting_queue->Append(g_current_thread);
+  g_current_thread->Sleep();
+
+  g_machine->interrupt->SetStatus(real_Status);
+}
+#endif
+
 
 //----------------------------------------------------------------------
 // Condition::Signal

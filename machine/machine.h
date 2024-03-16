@@ -80,6 +80,8 @@ enum ExceptionType : short {
 #include "machine/mmu.h"
 #include "machine/translationtable.h"
 
+#define ETUDIANTS_TP
+
 // Possible exceptions recognized by the machine
 
 class Console;

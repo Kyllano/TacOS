@@ -124,7 +124,17 @@ Scheduler::SwitchTo(Thread *nextThread) {
   // we need to delete its carcass.  Note we cannot delete the thread
   // before now (for example, in Thread::Finish()), because up to this
   // point, we were still running on the old thread's stack!
+#ifndef ETUDIANTS_TP
   printf("**** Warning: thread actual deletion not implemented yet\n");
+#endif
+#ifdef ETUDIANTS_TP
+  if (oldThread == g_thread_to_be_destroyed){
+    g_scheduler->readyList->RemoveItem(oldThread);
+    delete oldThread;
+    g_thread_to_be_destroyed = NULL;
+  }
+
+#endif
 
 }
 
