@@ -641,6 +641,70 @@ ExceptionHandler(ExceptionType exceptiontype, int vaddr) {
       break;
     }
 
+#ifdef ETUDIANTS_TP
+    case SC_P: {
+      DEBUG('e', (char *) "Thread: P syscall initiated.\n");
+      SemId sid = g_machine->ReadIntRegister(10);
+      Semaphore* s = (Semaphore*) g_object_addrs->SearchObject(sid);
+      if (s == NULL) {
+        DEBUG('e', (char *) "Thread: Invalid ID.\n");
+        g_machine->WriteIntRegister(10, ERROR);
+        g_syscall_error->SetMsg((char *) "", INVALID_SEMAPHORE_ID);
+        break;
+      }
+      s->P();
+      g_syscall_error->SetMsg((char *) "", NO_ERROR);
+      break;
+    }
+
+    case SC_V: {
+      DEBUG('e', (char *) "Thread: V syscall initiated.\n");
+      SemId sid = g_machine->ReadIntRegister(10);
+      Semaphore* s = (Semaphore*) g_object_addrs->SearchObject(sid);
+      if (s == NULL) {
+        DEBUG('e', (char *) "Thread: Invalid ID.\n");
+        g_machine->WriteIntRegister(10, ERROR);
+        g_syscall_error->SetMsg((char *) "", INVALID_SEMAPHORE_ID);
+        break;
+      }
+      s->V();
+      g_syscall_error->SetMsg((char *) "", NO_ERROR);
+      break;
+    }
+
+    case SC_SEM_CREATE: {
+      DEBUG('e', (char *) "Thread: Creation of semaphore initiated.\n");
+      uint64_t debug_name_addr = g_machine->ReadIntRegister(10);
+      int debug_name_sizep = GetLengthParam(debug_name_addr);
+      char debug_name[debug_name_sizep];
+      GetStringParam(debug_name_addr, debug_name, debug_name_sizep);
+
+      uint64_t sema_size = g_machine->ReadIntRegister(11);
+      Semaphore* sema = new Semaphore(debug_name, sema_size);
+
+      SemId sid = g_object_addrs->AddObject(sema);
+      g_machine->WriteIntRegister(10, sid);
+      g_syscall_error->SetMsg((char *) "", NO_ERROR);
+      break;
+    }
+
+    case SC_SEM_DESTROY: {
+      DEBUG('e', (char *) "Thread: Destruction of semaphore initiated.\n");
+      SemId sid = g_machine->ReadIntRegister(10);
+      Semaphore* s = (Semaphore*) g_object_addrs->SearchObject(sid);
+      if (s == NULL) {
+        DEBUG('e', (char *) "Thread: Invalid ID.\n");
+        g_machine->WriteIntRegister(10, ERROR);
+        g_syscall_error->SetMsg((char *) "", INVALID_SEMAPHORE_ID);
+        break;
+      }
+      g_object_addrs->RemoveObject(s);
+      delete s;
+      g_syscall_error->SetMsg((char *) "", NO_ERROR);
+      break;
+    }
+#endif
+
     default:
       printf("Invalid system call number : %d %x\n", type, type);
       exit(ERROR);

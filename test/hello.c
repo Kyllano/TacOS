@@ -23,7 +23,13 @@
 int
 main() {
 
+  SemId sid = SemCreate("coucou", 1);
+  P(sid);
+  n_printf("** ** ** PROUT  ** ** **\n");
   n_printf("** ** ** Bonjour le monde ** ** **\n");
+  n_printf("%d\n",SemDestroy(sid));
+  V(sid);
+  n_printf("** ** ** Bonjour AGAIN ** ** **\n");
 
   return 0;
 }

@@ -122,12 +122,15 @@ Semaphore::V() {
 #endif
 #ifdef ETUDIANTS_TP
 void Semaphore::V() {
-  if (counter < 0){
-    Thread* thread = (Thread*) waiting_queue->getFirst()->item;
-    waiting_queue->Remove();
+  if (this->counter < 0){
+    IntStatus old_status = g_machine->interrupt->GetStatus(); 
+    g_machine->interrupt->SetStatus(INTERRUPTS_OFF);
+    Thread* thread = (Thread*) this->waiting_queue->getFirst()->item;
+    this->waiting_queue->Remove();
     g_scheduler->ReadyToRun(thread);
+    g_machine->interrupt->SetStatus(old_status);
   }
-  counter ++;
+  this->counter ++;
 }
 #endif
 
@@ -139,12 +142,12 @@ void Semaphore::V() {
 */
 //----------------------------------------------------------------------
 Lock::Lock(char *debugName) {
-  name = new char[strlen(debugName) + 1];
+  this->name = new char[strlen(debugName) + 1];
   strcpy(name, debugName);
-  waiting_queue = new Listint;
-  free = true;
-  owner = NULL;
-  type = LOCK_TYPE;
+  this->waiting_queue = new Listint;
+  this->free = true;
+  this->owner = NULL;
+  this->type = LOCK_TYPE;
 }
 
 //----------------------------------------------------------------------
@@ -154,7 +157,7 @@ Lock::Lock(char *debugName) {
 */
 //----------------------------------------------------------------------
 Lock::~Lock() {
-  type = INVALID_TYPE;
+  this->type = INVALID_TYPE;
   ASSERT(waiting_queue->IsEmpty());
   delete[] name;
   delete waiting_queue;
