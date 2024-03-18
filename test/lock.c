@@ -4,7 +4,7 @@
 int main()
 {
     LockId im_Lock1 = LockCreate("Lock1");
-    LockId im_Lock1 = LockCreate("Lock1");
+    im_Lock1 = LockCreate("Lock1");
     PError("Success error (Lock was already created)");
     LockAcquire(im_Lock1);
     LockRelease(im_Lock1);

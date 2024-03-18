@@ -9,8 +9,8 @@ int main()
     SemDestroy(sem);
     if (SemDestroy(sem) != -1)
     {
-        printf("erreur !");
-        return;
+        n_printf("erreur !");
+        return 1;
     }
     SemId sem_snd = SemCreate("je s'appelle SEMAPHORE second !", 0);
     SemCreate("je s'appelle SEMAPHORE second !", 0);
