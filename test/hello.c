@@ -27,8 +27,10 @@ main() {
   P(sid);
   n_printf("** ** ** PROUT  ** ** **\n");
   n_printf("** ** ** Bonjour le monde ** ** **\n");
-  n_printf("%d\n",SemDestroy(sid));
-  V(sid);
+  SemDestroy(sid);
+  t_error err = V(sid);
+  n_printf("coucou : %d\n", err);
+  PError("coucou");
   n_printf("** ** ** Bonjour AGAIN ** ** **\n");
 
   return 0;

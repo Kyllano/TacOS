@@ -643,13 +643,13 @@ ExceptionHandler(ExceptionType exceptiontype, int vaddr) {
 
 #ifdef ETUDIANTS_TP
     case SC_P: {
-      DEBUG('e', (char *) "Thread: P syscall initiated.\n");
+      DEBUG('e', (char *) "Semaphore: P syscall initiated.\n");
       SemId sid = g_machine->ReadIntRegister(10);
       Semaphore* s = (Semaphore*) g_object_addrs->SearchObject(sid);
       if (s == NULL) {
-        DEBUG('e', (char *) "Thread: Invalid ID.\n");
-        g_machine->WriteIntRegister(10, ERROR);
+        DEBUG('e', (char *) "Semaphore: Invalid ID.\n");
         g_syscall_error->SetMsg((char *) "", INVALID_SEMAPHORE_ID);
+        g_machine->WriteIntRegister(10, ERROR);
         break;
       }
       s->P();
@@ -658,13 +658,13 @@ ExceptionHandler(ExceptionType exceptiontype, int vaddr) {
     }
 
     case SC_V: {
-      DEBUG('e', (char *) "Thread: V syscall initiated.\n");
+      DEBUG('e', (char *) "Semaphore: V syscall initiated.\n");
       SemId sid = g_machine->ReadIntRegister(10);
       Semaphore* s = (Semaphore*) g_object_addrs->SearchObject(sid);
       if (s == NULL) {
-        DEBUG('e', (char *) "Thread: Invalid ID.\n");
-        g_machine->WriteIntRegister(10, ERROR);
+        DEBUG('e', (char *) "Semaphore: Invalid ID.\n");
         g_syscall_error->SetMsg((char *) "", INVALID_SEMAPHORE_ID);
+        g_machine->WriteIntRegister(10, ERROR);
         break;
       }
       s->V();
@@ -673,7 +673,7 @@ ExceptionHandler(ExceptionType exceptiontype, int vaddr) {
     }
 
     case SC_SEM_CREATE: {
-      DEBUG('e', (char *) "Thread: Creation of semaphore initiated.\n");
+      DEBUG('e', (char *) "Semaphore: Creation of semaphore initiated.\n");
       uint64_t debug_name_addr = g_machine->ReadIntRegister(10);
       int debug_name_sizep = GetLengthParam(debug_name_addr);
       char debug_name[debug_name_sizep];
@@ -683,19 +683,19 @@ ExceptionHandler(ExceptionType exceptiontype, int vaddr) {
       Semaphore* sema = new Semaphore(debug_name, sema_size);
 
       SemId sid = g_object_addrs->AddObject(sema);
-      g_machine->WriteIntRegister(10, sid);
       g_syscall_error->SetMsg((char *) "", NO_ERROR);
+      g_machine->WriteIntRegister(10, sid);
       break;
     }
 
     case SC_SEM_DESTROY: {
-      DEBUG('e', (char *) "Thread: Destruction of semaphore initiated.\n");
+      DEBUG('e', (char *) "Semaphore: Destruction of semaphore initiated.\n");
       SemId sid = g_machine->ReadIntRegister(10);
       Semaphore* s = (Semaphore*) g_object_addrs->SearchObject(sid);
       if (s == NULL) {
-        DEBUG('e', (char *) "Thread: Invalid ID.\n");
-        g_machine->WriteIntRegister(10, ERROR);
+        DEBUG('e', (char *) "Semaphore: Invalid ID.\n");
         g_syscall_error->SetMsg((char *) "", INVALID_SEMAPHORE_ID);
+        g_machine->WriteIntRegister(10, ERROR);
         break;
       }
       g_object_addrs->RemoveObject(s);
@@ -703,6 +703,68 @@ ExceptionHandler(ExceptionType exceptiontype, int vaddr) {
       g_syscall_error->SetMsg((char *) "", NO_ERROR);
       break;
     }
+
+    case SC_LOCK_CREATE: {
+      DEBUG('e', (char *) "Lock: Creation of lock initiated.\n");
+      uint64_t debug_name_addr = g_machine->ReadIntRegister(10);
+      int debug_name_sizep = GetLengthParam(debug_name_addr);
+      char debug_name[debug_name_sizep];
+      GetStringParam(debug_name_addr, debug_name, debug_name_sizep);
+
+      Lock* l = new Lock(debug_name);
+
+      LockId lid = g_object_addrs->AddObject(l);
+      g_syscall_error->SetMsg((char *) "", NO_ERROR);
+      g_machine->WriteIntRegister(10, lid);
+      break;
+    }
+
+    case SC_LOCK_DESTROY: {
+      DEBUG('e', (char *) "Lock: Destruction of lock initiated.\n");
+      LockId lid = g_machine->ReadIntRegister(10);
+      Lock* l = (Lock*) g_object_addrs->SearchObject(lid);
+      if (lid == NULL) {
+        DEBUG('e', (char *) "Lock: Invalid ID.\n");
+        g_syscall_error->SetMsg((char *) "", INVALID_LOCK_ID);
+        g_machine->WriteIntRegister(10, ERROR);
+        break;
+      }
+      g_object_addrs->RemoveObject(l);
+      delete l;
+      g_syscall_error->SetMsg((char *) "", NO_ERROR);
+      break;
+    }
+
+    case SC_LOCK_ACQUIRE: {
+      DEBUG('e', (char *) "Lock: Lock acquire initiated.\n");
+      LockId lid = g_machine->ReadIntRegister(10);
+      Lock* l = (Lock*) g_object_addrs->SearchObject(lid);
+      if (l == NULL) {
+        DEBUG('e', (char *) "Lock: Invalid ID.\n");
+        g_syscall_error->SetMsg((char *) "", INVALID_SEMAPHORE_ID);
+        g_machine->WriteIntRegister(10, ERROR);
+        break;
+      }
+      l->Acquire();
+      g_syscall_error->SetMsg((char *) "", NO_ERROR);
+      break;
+    }
+
+    case SC_LOCK_RELEASE: {
+      DEBUG('e', (char *) "Lock: Lock release initiated.\n");
+      LockId lid = g_machine->ReadIntRegister(10);
+      Lock* l = (Lock*) g_object_addrs->SearchObject(lid);
+      if (l == NULL) {
+        DEBUG('e', (char *) "Lock: Invalid ID.\n");
+        g_syscall_error->SetMsg((char *) "", INVALID_SEMAPHORE_ID);
+        g_machine->WriteIntRegister(10, ERROR);
+        break;
+      }
+      l->Release();
+      g_syscall_error->SetMsg((char *) "", NO_ERROR);
+      break;
+    }
+
 #endif
 
     default:
