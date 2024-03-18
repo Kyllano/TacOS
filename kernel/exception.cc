@@ -723,7 +723,7 @@ ExceptionHandler(ExceptionType exceptiontype, int vaddr) {
       DEBUG('e', (char *) "Lock: Destruction of lock initiated.\n");
       LockId lid = g_machine->ReadIntRegister(10);
       Lock* l = (Lock*) g_object_addrs->SearchObject(lid);
-      if (lid == NULL) {
+      if (l == NULL) {
         DEBUG('e', (char *) "Lock: Invalid ID.\n");
         g_syscall_error->SetMsg((char *) "", INVALID_LOCK_ID);
         g_machine->WriteIntRegister(10, ERROR);
