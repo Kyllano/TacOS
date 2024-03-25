@@ -7,6 +7,8 @@ int main()
     im_Lock1 = LockCreate("Lock1");
     PError("Success error (Lock was already created)");
     LockAcquire(im_Lock1);
+    LockAcquire(im_Lock1);
+    PError("Success error (Lock was already Acquired)");
     LockRelease(im_Lock1);
     LockRelease(im_Lock1);
     PError("Success error (Lock was already Released)");

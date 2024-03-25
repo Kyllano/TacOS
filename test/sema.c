@@ -7,11 +7,8 @@ int main()
     P(sem);
     V(sem);
     SemDestroy(sem);
-    if (SemDestroy(sem) != -1)
-    {
-        n_printf("erreur !");
-        return 1;
-    }
+    SemDestroy(sem);
+    PError("Success error (semaphore was already destroyed)");
     SemId sem_snd = SemCreate("je s'appelle SEMAPHORE second !", 0);
     SemCreate("je s'appelle SEMAPHORE second !", 0);
     PError("Success error (semaphore was already created)");
