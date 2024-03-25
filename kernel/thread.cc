@@ -295,6 +295,7 @@ void Thread::Finish() {
     DEBUG('t', (char*)"Finishing thread \"%s\"\n", GetName());
 
     g_thread_to_be_destroyed = g_current_thread; // Le reste est dans SwitchTo()
+    
     // Go to sleep
     Sleep(); // invokes SWITCH
 
@@ -392,11 +393,16 @@ void Thread::SaveProcessorState() {
 #endif
 #ifdef ETUDIANTS_TP
 void Thread::SaveProcessorState() {
+    IntStatus oldLevel = g_machine->interrupt->SetStatus(INTERRUPTS_OFF);
+
     for (int i = 0; i < 32; i++) {
         this->thread_context.int_registers[i] = g_machine->ReadIntRegister(i);
         this->thread_context.float_registers[i] = g_machine->ReadFPRegister(i);
     }
     this->thread_context.pc = g_machine->pc;
+
+    this->process->addrspace->translationTable = g_machine->mmu->translationTable;
+    g_machine->interrupt->SetStatus(oldLevel);
 }
 #endif
 //----------------------------------------------------------------------
@@ -414,11 +420,16 @@ void Thread::RestoreProcessorState() {
 #endif
 #ifdef ETUDIANTS_TP
 void Thread::RestoreProcessorState() {
+    IntStatus oldLevel = g_machine->interrupt->SetStatus(INTERRUPTS_OFF);
+
     for (int i = 0; i < 32; i++) {
         g_machine->WriteIntRegister(i, this->thread_context.int_registers[i]);
         g_machine->WriteFPRegister(i, this->thread_context.float_registers[i]);
     }
     g_machine->pc = this->thread_context.pc;
+
+    g_machine->mmu->translationTable = this->process->addrspace->translationTable;
+    g_machine->interrupt->SetStatus(oldLevel);
 }
 #endif
 

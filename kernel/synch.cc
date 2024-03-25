@@ -183,12 +183,14 @@ void Lock::Acquire() {
     IntStatus old_status = g_machine->interrupt->GetStatus();
     g_machine->interrupt->SetStatus(INTERRUPTS_OFF);
 
-    while (!this->free) {
+    if (!this->free) {
         waiting_queue->Append(g_current_thread);
         g_current_thread->Sleep();
     }
-    owner = g_current_thread;
-    free = false;
+    else{
+        owner = g_current_thread;
+        free = false;
+    }
     g_machine->interrupt->SetStatus(old_status);
 }
 #endif

@@ -5,7 +5,7 @@
 #
 # To add generate a new program, just update the PROGRAMS target below
 
-PROGRAMS = sema halt hello shell matmult sort lock
+PROGRAMS = sema halt hello shell matmult sort lock prodcons rendez_vous
 
 all: $(PROGRAMS)
 

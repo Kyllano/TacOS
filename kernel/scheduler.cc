@@ -129,7 +129,9 @@ Scheduler::SwitchTo(Thread *nextThread) {
 #endif
 #ifdef ETUDIANTS_TP
   if (oldThread == g_thread_to_be_destroyed){
+    ASSERT(g_current_thread == g_thread_to_be_destroyed);//pas moi qui me detruit
     g_scheduler->readyList->RemoveItem(oldThread);
+    delete oldThread->GetProcessOwner()->addrspace; // pas necessaire
     delete oldThread;
     g_thread_to_be_destroyed = NULL;
   }
